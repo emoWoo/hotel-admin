@@ -1,35 +1,31 @@
 <script setup>
-import { ref } from 'vue';
+import { ref,watch } from 'vue';
+import { useI18n } from 'vue-i18n'
+
+const { locale } = useI18n()
+const selected = ref(locale.value)
 
 const options = [
     {
-        value: 'zh-cn',
+        value: 'zh',
         name: '简'
     },
     {
         value: 'en',
         name: 'en'
     },
-    {
-        value: 'zh-tw',
-        name: '繁'
-    },
 ]
-const selected = ref(options[0].name)
-
-const focus = () => {
-    console.log('选择框已聚焦')
-}
 
 // 选项改变时的回调
 const handleChange = (value) => {
-    console.log('切换语言为：', value)
+    locale.value = value
+  localStorage.setItem('lang', value)
 }
 
 </script>
 
 <template>
-    <a-select v-model:value="selected" style="width: 60px" @focus="focus" @change="handleChange">
+    <a-select v-model:value="selected" style="width: 60px"  @change="handleChange">
         <a-select-option v-for="item in options" :key="item.value" :value="item.value">
             {{ item.name }}
         </a-select-option>

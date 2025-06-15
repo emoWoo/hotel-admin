@@ -1,11 +1,12 @@
 <script setup>
-import Login from './pages/login/Login.vue';
+import Login from './views/login/Login.vue'
+// import Baselayout from './layout/Baselayout.vue';
 </script>
 
 <template>
-  <a-watermark class="full-page" content="emoWoo hotel admin">
-    <Login />
-  </a-watermark>
+  <!-- <Login /> -->
+  <router-view />
+  <!-- <Baselayout /> -->
 </template>
 
 <style scoped>

@@ -1,0 +1,15 @@
+export default {
+  title: 'User Information',
+  name: 'Name',
+  email: 'Email',
+  owe_hotel: 'Hotel',
+  save: 'Save',
+  get_hotellist_error: 'Failed to get hotel list',
+  get_usrinfo_error: 'Failed to get user information',
+  save_success: 'Saved successfully',
+  save_error: 'Save failed',
+  please_input_complete_info: 'Please complete the information',
+  please_input_name: 'Please enter name',
+  please_input_email: 'Please enter email',
+  please_select_hotel: 'Please select a hotel',
+};
