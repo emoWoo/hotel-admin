@@ -65,10 +65,10 @@ const statusOptions = [{
     label: t('user.active'),
     value: 1
 },
-// {
-//     label: t('user.banned'),
-//     value: 0
-// }
+    // {
+    //     label: t('user.banned'),
+    //     value: 0
+    // }
 ]
 
 const newUser = reactive({
@@ -161,22 +161,23 @@ const handleDelete = async (record, isPermanent) => {
             permanent: isPermanent
         })
         console.log('Delete Response:', res.data);
-        message.success($t('user.delete_success'))
+        message.success(t('user.delete_success'))
         fetchUserList()
     } catch (error) {
-        message.error($t('user.delete_error'))
+        message.error(t('user.delete_error'))
     }
 }
 
-const handleRestore = async (record,isPermanent) => {
+const handleRestore = async (record, isPermanent) => {
     try {
-        await userListApi.restoreUser(record.id,{
+        await userListApi.restoreUser(record.id, {
             permanent: isPermanent
         })
-        message.success($t('user.restore_success'))
+        message.success(t('user.restore_success'))
+        // message.success('abc')
         fetchUserList()
     } catch (error) {
-        message.error($t('user.restore_error'))
+        message.error(t('user.restore_error'))
     }
 }
 const fetchUserList = async () => {
@@ -197,7 +198,7 @@ const fetchUserList = async () => {
             email: user.email,
             hotel: user.hotel?.name || '/',
             group: user.user_group?.name || '/',
-            status: user.status = 1 ? '活跃' : '禁用',
+            status: user.status === 1 ? '活跃' : '禁用',
             last_active: user.last_active ? formatTime(user?.last_active) : '/',
             created_at: formatTime(user.created_at),
             updated_at: formatTime(user.updated_at),
@@ -301,9 +302,9 @@ onMounted(async () => {
                         <span v-if="column.key === 'actions'">
                             <a-space v-if="!showBin">
                                 <a-button type="link" style="padding: 0;" @click="handleView(record)">{{ $t('user.view')
-                                }}</a-button>
+                                    }}</a-button>
                                 <a-button type="link" style="padding: 0;" @click="handleEdit(record)">{{ $t('user.edit')
-                                }}</a-button>
+                                    }}</a-button>
                                 <a-popconfirm :title="$t('user.sure_delete')" :ok-text="$t('user.yes')"
                                     :cancel-text="$t('user.no')" @confirm="handleDelete(record, false)">
                                     <a-button danger type="link" style="padding: 0;">{{ $t('user.delete') }}</a-button>
@@ -311,13 +312,14 @@ onMounted(async () => {
 
                             </a-space>
                             <a-space v-else>
-                                <a-popconfirm :title="$t('user.sure_restore')" @confirm="handleRestore(record, false)">
+                                <a-popconfirm :title="$t('user.sure_restore')" :ok-text="$t('user.yes')"
+                                    :cancel-text="$t('user.no')" @confirm="handleRestore(record, false)">
                                     <a-button type="link" style="padding: 0;">{{ $t('user.restore') }}</a-button>
                                 </a-popconfirm>
-                                <a-popconfirm :title="$t('user.sure_permanent_delete')"
-                                    @confirm="handleDelete(record, true)">
+                                <a-popconfirm :title="$t('user.sure_permanent_delete')" :ok-text="$t('user.yes')"
+                                    :cancel-text="$t('user.no')" @confirm="handleDelete(record, true)">
                                     <a-button danger type="link" style="padding: 0;">{{ $t('user.permanent_delete')
-                                    }}</a-button>
+                                        }}</a-button>
                                 </a-popconfirm>
                             </a-space>
                         </span>
