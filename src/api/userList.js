@@ -1,9 +1,8 @@
-import { de } from "element-plus/es/locales.mjs";
 import http from "../utils/http";
 
 const userListApi = {
   async getUserList(params) {
-    return http.get("admin/users", { params });
+    return http.get("users/check", { params });
   },
   async getUserDetail(id) {
     return http.get(`admin/users/${id}`);

@@ -18,7 +18,8 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://hotel.ojbk.me/api/",
+        // target: "https://hotel.ojbk.me/api/",
+        target: "http://43.136.23.194:8000/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
         secure: false, // 如果目标是 https 且证书可能无效，加上这个

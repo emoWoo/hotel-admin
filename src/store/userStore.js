@@ -3,6 +3,23 @@ import { defineStore } from "pinia";
 export const useUserStore = defineStore("user", {
   state: () => ({
     userInfo: {},
+    groupOptions:[
+      {
+        label:"管理员",
+        value:"admin"
+      }
+    ],
+    statusOptions:[
+      {
+        label:"活跃",
+        value:"1"
+      },
+      {
+        label:"禁用",
+        value:"0"
+      }
+    ]
+
   }),
   getters: {
     // isLoggedIn: (state) => !!state.token,

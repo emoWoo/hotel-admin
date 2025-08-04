@@ -12,8 +12,10 @@ const router = useRouter()
 const userStore = useUserStore()
 
 const form = reactive({
-    email: 'admin',
-    password: 'admin',
+    // email: 'admin',
+    // password: 'admin',
+    email:'admin@example.com',
+    password: 'admin123',
 })
 
 const loading = ref(false)

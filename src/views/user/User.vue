@@ -5,14 +5,18 @@ import UserModal from '../../components/user/Usermodal.vue'
 import Userdescription from '../../components/user/Userdescription.vue';
 import userListApi from '../../api/userList'
 import hotelApi from '../../api/hotel'
-import groupApi from '../../api/group';
 import formatTime from '../../utils/formatTime'
 import { useI18n } from 'vue-i18n'
+import Searchform from '../../components/searchform.vue';
+import CustomTabel from '../../components/customTabel.vue';
+import {useUserStore} from '../../store/userStore'
 
 const { t } = useI18n()
+const userStore = useUserStore()
 
 const modalVisible = ref(false)
 const isEdit = ref(false)
+
 
 const columns = [
     {
@@ -59,17 +63,8 @@ const columns = [
 const userList = ref([])
 const hotelsOptions = ref([
 ])
-const groupsOptions = ref([
-])
-const statusOptions = [{
-    label: t('user.active'),
-    value: 1
-},
-    // {
-    //     label: t('user.banned'),
-    //     value: 0
-    // }
-]
+const groupsOptions = userStore.groupOptions
+const statusOptions=userStore.statusOptions
 
 const newUser = reactive({
     name: '',
@@ -212,8 +207,8 @@ const fetchHotels = async () => {
     try {
         const res = await hotelApi.getHotels()
         hotelsOptions.value = res.data.data.map(hotel => ({
-            label: hotel.name,
-            value: hotel.id
+            label: hotel.Hotel_name,
+            value: hotel.Hotel_id
         }))
     } catch (error) {
         message.error('获取酒店列表失败')
@@ -232,6 +227,32 @@ const fetchGroups = async () => {
         message.error('获取用户组列表失败')
     }
 }
+
+const search = [
+    {
+        label: t('user.name'),
+        type: 'input',
+    },
+    {
+        label: t('user.email'),
+        type: 'input',
+    },
+    {
+        label: t('user.owe_hotel'),
+        type: 'select',
+        options: hotelsOptions,
+    },
+    {
+        label: t('user.group'),
+        type: 'select',
+        options: groupsOptions,
+    },
+    {
+        label: t('user.status'),
+        type: 'select',
+        options: statusOptions,
+    }
+]
 
 onMounted(async () => {
     await fetchUserList()
@@ -259,75 +280,9 @@ onMounted(async () => {
             </a-space>
         </template>
 
-        <a-form>
-            <a-row :gutter="[16, 16]"> <!-- 横向和纵向间距 -->
-                <a-col :xs="24" :sm="12" :md="8" :lg="6">
-                    <a-form-item :label="$t('user.name')">
-                        <a-input :placeholder="$t('user.name')" />
-                    </a-form-item>
-                </a-col>
-
-                <a-col :xs="24" :sm="12" :md="8" :lg="6">
-                    <a-form-item :label="$t('user.email')">
-                        <a-input :placeholder="$t('user.email')" />
-                    </a-form-item>
-                </a-col>
-
-                <a-col :xs="24" :sm="12" :md="8" :lg="6">
-                    <a-form-item :label="$t('user.owe_hotel')">
-                        <a-select :options="hotelsOptions" />
-                    </a-form-item>
-                </a-col>
-
-                <a-col :xs="24" :sm="12" :md="8" :lg="6">
-                    <a-form-item :label="$t('user.group')">
-                        <a-select :options="groupsOptions" />
-                    </a-form-item>
-                </a-col>
-
-                <a-col :xs="24" :sm="12" :md="8" :lg="6">
-                    <a-form-item :label="$t('user.status')">
-                        <a-select :options="statusOptions" />
-                    </a-form-item>
-                </a-col>
-                <a-button>{{ $t('user.reset') }}</a-button>
-            </a-row>
-
-        </a-form>
-
-        <a-row>
-            <a-col :span="24">
-                <a-table :columns="columns" :data-source="userList" :scroll="{ x: 'max-content' }">
-                    <template #bodyCell="{ column, record }">
-                        <span v-if="column.key === 'actions'">
-                            <a-space v-if="!showBin">
-                                <a-button type="link" style="padding: 0;" @click="handleView(record)">{{ $t('user.view')
-                                    }}</a-button>
-                                <a-button type="link" style="padding: 0;" @click="handleEdit(record)">{{ $t('user.edit')
-                                    }}</a-button>
-                                <a-popconfirm :title="$t('user.sure_delete')" :ok-text="$t('user.yes')"
-                                    :cancel-text="$t('user.no')" @confirm="handleDelete(record, false)">
-                                    <a-button danger type="link" style="padding: 0;">{{ $t('user.delete') }}</a-button>
-                                </a-popconfirm>
-
-                            </a-space>
-                            <a-space v-else>
-                                <a-popconfirm :title="$t('user.sure_restore')" :ok-text="$t('user.yes')"
-                                    :cancel-text="$t('user.no')" @confirm="handleRestore(record, false)">
-                                    <a-button type="link" style="padding: 0;">{{ $t('user.restore') }}</a-button>
-                                </a-popconfirm>
-                                <a-popconfirm :title="$t('user.sure_permanent_delete')" :ok-text="$t('user.yes')"
-                                    :cancel-text="$t('user.no')" @confirm="handleDelete(record, true)">
-                                    <a-button danger type="link" style="padding: 0;">{{ $t('user.permanent_delete')
-                                        }}</a-button>
-                                </a-popconfirm>
-                            </a-space>
-                        </span>
-                    </template>
-                </a-table>
-            </a-col>
-        </a-row>
-
+        <Searchform :fields="search" />
+        <CustomTabel :columns="columns" :dataSource="userList" :showBin="showBin" @view="handleView" @edit="handleEdit"
+            @delete="handleDelete" @restore="handleRestore" />
         <UserModal :visible="modalVisible" :userData="isEdit ? currentUser : newUser" :isEdit="isEdit"
             :hotelOptions="hotelsOptions" :groupOptions="groupsOptions" :statusOptions="statusOptions"
             @save="handleSubmit" @close="modalVisible = false" />

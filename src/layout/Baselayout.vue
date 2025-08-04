@@ -28,12 +28,12 @@
                         <span>{{ $t('hotel.title') }}</span>
                     </router-link>
                 </a-menu-item>
-                <a-menu-item key="/tag">
+                <!-- <a-menu-item key="/tag">
                     <router-link to="/tag">
                         <TagOutlined />
                         <span>{{ $t('tag.title') }}</span>
                     </router-link>
-                </a-menu-item>
+                </a-menu-item> -->
                 <a-menu-item key="/deposit">
                     <router-link to="/deposit">
                         <HddOutlined />
@@ -68,12 +68,14 @@
     </ALayout>
 </template>
 <script setup>
-import { ref, watch } from 'vue';
+import { ref, watch,onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import { DashboardOutlined, HomeOutlined, InfoCircleOutlined, UserOutlined, TagOutlined, HddOutlined } from '@ant-design/icons-vue';
 import langSelector from '../components/langSelector.vue';
 import themeSwitch from '../components/themeSwitch.vue';
 import { useI18n } from 'vue-i18n';
+import userApi from '../api/user';
+import { message } from 'ant-design-vue';
 
 const route = useRoute()
 const { t } = useI18n()
@@ -97,6 +99,19 @@ watch(
     },
     { immediate: true }
 )
+
+onMounted(async()=>{
+    try {
+        const res = await userApi.getUserInfo()
+        const userInfo = res.data
+        formData.name = userInfo.name
+        formData.email = userInfo.email
+        formData.hotel_id = userInfo.hotel_id
+        console.log(res.data)
+    } catch (error) {
+        message.error(t('usrinfo.get_usrinfo_error'))
+    }
+})
 </script>
 
 <style scoped>

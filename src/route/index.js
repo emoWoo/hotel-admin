@@ -22,10 +22,6 @@ const routes = [
   },
   {
     path: "/",
-    redirect: "/login",
-  },
-  {
-    path: "/",
     component: Baselayout,
     children: [
       {
@@ -56,13 +52,13 @@ const routes = [
           title: "hotel.title",
         },
       },
-      {
-        path: "tag",
-        component: Tag,
-        meta: {
-          title: "tag.title",
-        },
-      },
+      // {
+      //   path: "tag",
+      //   component: Tag,
+      //   meta: {
+      //     title: "tag.title",
+      //   },
+      // },
       {
         path: "deposit",
         component: Deposit,

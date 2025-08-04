@@ -1,8 +1,8 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { message } from 'ant-design-vue'
-import hotelApi from '../../api/hotel'
 import userApi from '../../api/user'
+import fetchHotels from '../../utils/fetchHotels'
 
 import { useI18n } from 'vue-i18n'
 
@@ -38,21 +38,14 @@ const save = () => {
 }
 
 onMounted(async () => {
-    try {
-        const res = await hotelApi.getHotels()
-        // console.log(res.data.data)
-        const data = res.data.data
-        hotels.value = data.map(item => ({
-            label: item.name,
-            value: item.id,
-        }))
-        console.log(hotels.value)
-    } catch (error) {
-        message.error(t('usrinfo.get_hotellist_error'))
-    }
-
+    const data = await fetchHotels();
+    hotels.value = data.map(item => ({
+        label: item.name,
+        value: item.hotel_id_1,
+    }))
     try {
         const res = await userApi.getUserInfo()
+        console.log('User Info:', res.data)
         const userInfo = res.data
         formData.name = userInfo.name
         formData.email = userInfo.email

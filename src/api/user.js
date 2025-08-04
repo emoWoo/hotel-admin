@@ -2,11 +2,11 @@ import http from "../utils/http";
 
 const userApi = {
   async getUserInfo() {
-    return http.get("admin/user");
+    return http.get("user");
   },
 
   async updateUserInfo(data) {
-    return http.post("admin/user", data);
+    return http.post("user", data);
   },
   
 };
