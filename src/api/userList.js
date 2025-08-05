@@ -1,21 +1,33 @@
 import http from "../utils/http";
 
 const userListApi = {
-  async getUserList(params) {
-    return http.get("users/check", { params });
+  async getUserList() {
+    return http.get("users/check");
   },
-  async getUserDetail(id) {
-    return http.get(`admin/users/${id}`);
+
+  async getTrashUserList() {
+    return http.get("/users/trash");
   },
-  async submitUser(id,data){
-    return http.post(id ? `admin/users/${id}` : 'admin/users',data);
+
+  async editUser(data) {
+    return http.post("users/management/2", data);
   },
-  async deleteUser(id,params){
-    return http.delete(`admin/users/${id}`, { params });
+
+  async addUser(data) {
+    return http.post("register", data);
   },
-  async restoreUser(id,params){
-    return http.patch(`admin/users/${id}`, { params });
-  }
+
+  async deleteUser(data) {
+    return http.delete("users/management/5", { data });
+  },
+
+  async restoreUser(data) {
+    return http.post("/users/trash/restore", data);
+  },
+
+  async permanentDelete(data) {
+    return http.post("users/trash/delete", { data });
+  },
 };
 
 export default userListApi;

@@ -12,9 +12,9 @@ const hotels = ref([])
 
 const formRef = ref()
 const formData = reactive({
-    name: '',
+    username: '',
     email: '',
-    hotel_id: '',
+    hotel_id_1: '',
 })
 console.log(formData)
 
@@ -46,10 +46,10 @@ onMounted(async () => {
     try {
         const res = await userApi.getUserInfo()
         console.log('User Info:', res.data)
-        const userInfo = res.data
-        formData.name = userInfo.name
+        const userInfo = res.data.user
+        formData.username = userInfo.username
         formData.email = userInfo.email
-        formData.hotel_id = userInfo.hotel_id
+        formData.hotel_id_1 = userInfo.hotel_id
         console.log(res.data)
     } catch (error) {
         message.error(t('usrinfo.get_usrinfo_error'))
@@ -67,17 +67,17 @@ onMounted(async () => {
         <a-row>
             <a-col :span="24">
                 <a-form layout="vertical" :model="formData" ref="formRef">
-                    <a-form-item :label="$t('usrinfo.name')" name="name"
+                    <a-form-item :label="$t('usrinfo.name')" name="username"
                         :rules="[{ required: true, message: $t('usrinfo.please_input_name') }]">
-                        <a-input v-model:value="formData.name" style="max-width: 300px;" />
+                        <a-input v-model:value="formData.username" style="max-width: 300px;" />
                     </a-form-item>
                     <a-form-item :label="$t('usrinfo.email')" name="email"
-                        :rules="[{ required: true, message:$t('usrinfo.please_input_email') }]">
+                        :rules="[{ required: true, message: $t('usrinfo.please_input_email') }]">
                         <a-input v-model:value="formData.email" style="max-width: 300px;" />
                     </a-form-item>
-                    <a-form-item name="hotel_id" :label="$t('usrinfo.owe_hotel')"
+                    <a-form-item name="hotel_id_1" :label="$t('usrinfo.owe_hotel')"
                         :rules="[{ required: true, message: $t('usrinfo.please_select_hotel') }]">
-                        <a-select v-model:value="formData.hotel_id" :options=hotels style="max-width: 300px;" />
+                        <a-select v-model:value="formData.hotel_id_1" :options=hotels style="max-width: 300px;" />
                     </a-form-item>
 
                 </a-form>

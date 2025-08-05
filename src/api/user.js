@@ -6,7 +6,7 @@ const userApi = {
   },
 
   async updateUserInfo(data) {
-    return http.post("user", data);
+    return http.post("user/update", data);
   },
   
 };

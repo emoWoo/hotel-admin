@@ -12,11 +12,11 @@ export const useUserStore = defineStore("user", {
     statusOptions:[
       {
         label:"活跃",
-        value:"1"
+        value:1
       },
       {
         label:"禁用",
-        value:"0"
+        value:0
       }
     ]
 

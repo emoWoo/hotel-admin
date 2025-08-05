@@ -1,20 +1,22 @@
 <script setup>
 import { reactive, ref, onMounted } from 'vue';
 import { message } from 'ant-design-vue'
-import UserModal from '../../components/user/Usermodal.vue'
-import Userdescription from '../../components/user/Userdescription.vue';
 import userListApi from '../../api/userList'
-import hotelApi from '../../api/hotel'
 import formatTime from '../../utils/formatTime'
 import { useI18n } from 'vue-i18n'
 import Searchform from '../../components/searchform.vue';
 import CustomTabel from '../../components/customTabel.vue';
-import {useUserStore} from '../../store/userStore'
+import CustomAddModal from '../../components/customAddModal.vue';
+import CustomEditModal from '../../components/customEditModal.vue';
+import CustomView from '../../components/customView.vue';
+import { useUserStore } from '../../store/userStore'
+import fetchHotels from '../../utils/fetchHotels'
 
 const { t } = useI18n()
 const userStore = useUserStore()
 
-const modalVisible = ref(false)
+const showAddModal = ref(false)
+const showEditModal = ref(false)
 const isEdit = ref(false)
 
 
@@ -60,102 +62,144 @@ const columns = [
     }
 ]
 
+const getModalItems = () => [
+    {
+        label: '姓名',
+        name: 'username',
+        type: 'input',
+        placeholder: '姓名',
+        rules: [{ required: true, message: '不能为空' }]
+    },
+    {
+        label: '密码',
+        name: 'password',
+        type: 'input',
+        placeholder: '',
+        rules: isEdit.value ? [] : [{ required: true, message: '不能为空' }]
+    },
+    {
+        label: '邮箱',
+        name: 'email',
+        type: 'input',
+        placeholder: '邮箱',
+        rules: [{ required: true, message: '不能为空' }]
+    }, {
+        label: '所属酒店',
+        name: 'hotel',
+        type: 'select',
+        placeholder: '',
+        options: hotelsOptions,
+        rules: [{ required: true, message: '不能为空' }]
+    }, {
+        label: '用户组',
+        name: 'group',
+        type: 'select',
+        placeholder: '',
+        options: groupsOptions,
+        rules: [{ required: true, message: '不能为空' }]
+    },
+    {
+        label: '状态',
+        name: 'status',
+        type: 'select',
+        placeholder: '',
+        options: statusOptions,
+        rules: [{ required: true, message: '不能为空' }]
+    }
+]
+
 const userList = ref([])
 const hotelsOptions = ref([
 ])
 const groupsOptions = userStore.groupOptions
-const statusOptions=userStore.statusOptions
+const statusOptions = userStore.statusOptions
 
-const newUser = reactive({
-    name: '',
-    password: '',
-    email: '',
-    hotel: '',
-    group: '',
-    status: ''
-})
+const handleAdd = (d) => {
+    console.log('Add User Data:', d);
+    const data = {
+        username: d.username,
+        email: d.email,
+        password: d.password,
+        hotel_id: d.hotel,
+        group: d.group,
+        status: d.status
+    }
 
-const handleAdd = () => {
-    isEdit.value = false;
-    modalVisible.value = true;
-    newUser.name = '';
-    newUser.email = '';
-    newUser.hotel = '';
-    newUser.group = '';
-    newUser.status = '';
+    try {
+        isEdit.value = false;
+        userListApi.addUser(data);
+        message.success(t('user.add_success'));
+        showAddModal.value = false;
+        fetchUserList();
+    } catch (error) {
+        message.error(t('user.add_error'));
+    }
 }
 
 const currentUser = ref({})
-const handleEdit = async (record) => {
-    // console.log('Editing User:', record)
-    isEdit.value = true
-    // currentUser.value = { ...record }
-    modalVisible.value = true
+const openEdit = (record) => {
+    console.log('Edit User:', record);
+    showEditModal.value = true;
+    isEdit.value = true;
+    const d = record;
+    currentUser.value = {
+        id: d.id,
+        username: d.name,
+        email: d.email,
+        hotel: hotelsOptions.value.find(item => item.label === d.hotel)?.value || '',
+        group: groupsOptions.find(item => item.label === d.group)?.value || '',
+        status: statusOptions.find(item => item.label === d.status)?.value || '',
+    }
+}
+const handleEdit = async (d) => {
+    console.log('Current User Data:', d.group);
+    const data = {
+        user_id_1: d.id,
+        username: d.username,
+        email: d.email,
+        password: d.password,
+        hotel_id_1: d.hotel,
+        group: d.group,
+        status: d.status,
+    }
+    console.log('Prepared Data for API:', data);
     try {
-        const res = await userListApi.getUserDetail(record.id)
-        // console.log('User Detail:', res.data)
-        currentUser.value = {
-            id: res.data.id,
-            name: res.data.name,
-            email: res.data.email,
-            hotel: res.data.hotel_id,
-            group: res.data.user_group?.id || '',
-            status: res.data.status,
-        }
+        await userListApi.editUser(data);
+        message.success(t('user.edit_success'));
+        showEditModal.value = false;
+        await fetchUserList();
     } catch (error) {
-
+        message.error(t('user.edit_error'));
     }
 }
 
-const handleSubmit = async (user) => {
-    // console.log('Submitted User:', user)
-    try {
-        const res = await userListApi.submitUser(user?.id, user)
-        // console.log('Submit Response:', res)
-        await fetchUserList()
-    } catch (error) {
-
-    }
-}
-
-const viewUser = ref({})
-const descvisible = ref(false)
-const handleView = async (record) => {
-    try {
-        const res = await userListApi.getUserDetail(record.id)
-        console.log('User Detail:', res.data)
-        const d = res.data
-        viewUser.value = {
-            name: d.name,
-            email: d.email,
-            hotel: hotelsOptions.value.find(hotel => hotel.value === d.hotel_id)?.label || '/',
-            group: d.user_group?.name || '/',
-            status: d.status = 1 ? '活跃' : '禁用',
-            last_active: d.last_active ? formatTime(d.last_active) : '/',
-            created_at: formatTime(d.created_at),
-            updated_at: formatTime(d.updated_at),
-        }
-        descvisible.value = true;
-    } catch (error) {
-
-    }
-
+const viewUser = ref([])
+const isView = ref(false)
+const handleView = (record) => {
+    const d = record;
+    viewUser.value = [
+        { label: 'name', value: d.name },
+        { label: 'email', value: d.email },
+        { label: 'hotel', value: d.hotel },
+        { label: 'group', value: d.group },
+        { label: 'status', value: d.status },
+        { label: 'last_active', value: d.last_active || '/' },
+        { label: 'created_at', value: d.created_at || '/' },
+        { label: 'updated_at', value: d.updated_at || '/' },
+    ]
+    isView.value = true;
 }
 
 const showBin = ref(false)
 const handleBin = () => {
     showBin.value = !showBin.value;
-    console.log('Toggle Bin:', showBin.value);
     fetchUserList();
 }
 
-const handleDelete = async (record, isPermanent) => {
+const handleDelete = async (record) => {
     console.log('Delete User:', record);
     try {
-        const res = await userListApi.deleteUser(record.id, {
-            permanent: isPermanent
-        })
-        console.log('Delete Response:', res.data);
+        const res = await userListApi.deleteUser({ 'user_id': record.id });
         message.success(t('user.delete_success'))
         fetchUserList()
     } catch (error) {
@@ -163,68 +207,49 @@ const handleDelete = async (record, isPermanent) => {
     }
 }
 
-const handleRestore = async (record, isPermanent) => {
+const handleRestore = async (record) => {
     try {
-        await userListApi.restoreUser(record.id, {
-            permanent: isPermanent
-        })
+        await userListApi.restoreUser({"user_id_1": record.id });
         message.success(t('user.restore_success'))
-        // message.success('abc')
         fetchUserList()
     } catch (error) {
         message.error(t('user.restore_error'))
     }
 }
+
+const permanentDelete = async (record) => {
+    try {
+        await userListApi.permanentDelete({ 'user_id_1': record.id });
+        message.success(t('user.permanent_delete_success'))
+        fetchUserList()
+    } catch (error) {
+        message.error(t('user.permanent_delete_error'))
+    }
+}
+
 const fetchUserList = async () => {
     try {
-        const res = await userListApi.getUserList(
-            {
-                trash: showBin.value,
-                page: 1,
-                page_size: 20,
-            }
-        )
-        console.log('User List:', res.data.data)
-        const data = res.data.data
-        console.log('Data:', data)
+        let res;
+        if (showBin.value) {
+            res = await userListApi.getTrashUserList()
+        }
+        else {
+            res = await userListApi.getUserList()
+        }
+        const data = res?.data?.users?.users || [];
         userList.value = data.map(user => ({
-            id: user.id,
-            name: user.name,
+            id: user.user_id,
+            name: user.username,
             email: user.email,
-            hotel: user.hotel?.name || '/',
-            group: user.user_group?.name || '/',
+            hotel: hotelsOptions.value.find(h => h.value === user.hotel_id)?.label || '/',
+            group: groupsOptions.find(item => item.value === user.group)?.label || '/',
             status: user.status === 1 ? '活跃' : '禁用',
-            last_active: user.last_active ? formatTime(user?.last_active) : '/',
-            created_at: formatTime(user.created_at),
-            updated_at: formatTime(user.updated_at),
+            last_active: user.last_login_time ? formatTime(user?.last_login_time) : '/',
+            created_at: user.register_time ? formatTime(user.register_time) : '/',
+            updated_at: user.update_time ? formatTime(user.update_time) : '/',
         }))
-        console.log('User List Mapped:', userList.value)
     } catch (error) {
         message.error('获取用户列表失败')
-    }
-}
-const fetchHotels = async () => {
-    try {
-        const res = await hotelApi.getHotels()
-        hotelsOptions.value = res.data.data.map(hotel => ({
-            label: hotel.Hotel_name,
-            value: hotel.Hotel_id
-        }))
-    } catch (error) {
-        message.error('获取酒店列表失败')
-    }
-}
-const fetchGroups = async () => {
-    try {
-        const res = await groupApi.getGroups()
-        // console.log('Groups:', res.data.data[0])
-        groupsOptions.value = res.data.data.map(group => ({
-            label: group.name,
-            value: group.id
-        }))
-        // console.log('Groups Options:', groupsOptions.value)
-    } catch (error) {
-        message.error('获取用户组列表失败')
     }
 }
 
@@ -255,9 +280,13 @@ const search = [
 ]
 
 onMounted(async () => {
+    const data = await fetchHotels();
+    hotelsOptions.value = data.map(item => ({
+        label: item.name,
+        value: item.hotel_id_1,
+    }))
+    getModalItems()
     await fetchUserList()
-    await fetchHotels()
-    await fetchGroups()
 })
 </script>
 
@@ -266,7 +295,7 @@ onMounted(async () => {
         <template #extra>
             <a-space v-if="!showBin">
                 <a-button type="link" disabled style="padding:0">导出Excel</a-button>
-                <a-button type="link" style="padding: 0;" @click="handleAdd">
+                <a-button type="link" style="padding: 0;" @click="showAddModal = true">
                     {{ $t('user.add') }}
                 </a-button>
                 <a-button type="link" style="padding :0" @click="handleBin">
@@ -281,12 +310,13 @@ onMounted(async () => {
         </template>
 
         <Searchform :fields="search" />
-        <CustomTabel :columns="columns" :dataSource="userList" :showBin="showBin" @view="handleView" @edit="handleEdit"
-            @delete="handleDelete" @restore="handleRestore" />
-        <UserModal :visible="modalVisible" :userData="isEdit ? currentUser : newUser" :isEdit="isEdit"
-            :hotelOptions="hotelsOptions" :groupOptions="groupsOptions" :statusOptions="statusOptions"
-            @save="handleSubmit" @close="modalVisible = false" />
-        <Userdescription :visible="descvisible" @close="descvisible = false" :userinfo="viewUser" />
+        <CustomTabel :columns="columns" :dataSource="userList" :showBin="showBin" @view="handleView" @edit="openEdit"
+            @delete="handleDelete" @restore="handleRestore" @permanent_delete="permanentDelete" />
+        <CustomAddModal :visible="showAddModal" :items="getModalItems()" @cancel="showAddModal = false"
+            @save="handleAdd" />
+        <CustomEditModal :visible="showEditModal" :items="getModalItems()" :initialValues="currentUser"
+            @cancel="showEditModal = false" @save="handleEdit" />
+        <CustomView :visible="isView" :infos="viewUser" @close="isView = false" />
     </a-card>
 </template>
 
