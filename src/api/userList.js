@@ -26,7 +26,7 @@ const userListApi = {
   },
 
   async permanentDelete(data) {
-    return http.post("users/trash/delete", { data });
+    return http.delete("users/trash/delete", { data });
   },
 };
 

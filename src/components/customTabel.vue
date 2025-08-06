@@ -1,5 +1,6 @@
 <script setup>
 import getConfirmTitle from '../utils/getConfirmTitle'
+import { computed } from 'vue'
 const props = defineProps({
     columns: {
         type: Array,
@@ -26,7 +27,17 @@ const props = defineProps({
     },
     showBin: {
         type: Boolean,
+        default: false
     }
+})
+
+const centeredColumns = computed(() => {
+    return props.columns.map(col => {
+        return {
+            ...col,
+            align: 'center'
+        }
+    })
 })
 
 const emit = defineEmits(['update:showBin', 'view', 'edit', 'delete', 'restore', 'permanent_delete'])
@@ -41,6 +52,8 @@ function emitAction(action, record) {
         emit('restore', record, false)
     } else if (action === 'permanent_delete') {
         emit('permanent_delete', record, true)
+    } else {
+        emit(action, record)
     }
 }
 
@@ -49,7 +62,7 @@ function emitAction(action, record) {
 <template>
     <a-row>
         <a-col :span="24">
-            <a-table :columns=props.columns :data-source=props.dataSource :scroll="{ x: 'max-content' }">
+            <a-table :columns=centeredColumns :data-source=props.dataSource :scroll="{ x: 'max-content' }">
                 <template #bodyCell="{ column, record }">
                     <span v-if="column.key === 'actions'">
                         <a-space>

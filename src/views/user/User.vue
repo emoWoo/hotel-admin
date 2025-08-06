@@ -128,9 +128,10 @@ const handleAdd = (d) => {
     try {
         isEdit.value = false;
         userListApi.addUser(data);
+        fetchUserList();
         message.success(t('user.add_success'));
         showAddModal.value = false;
-        fetchUserList();
+        
     } catch (error) {
         message.error(t('user.add_error'));
     }
@@ -199,7 +200,7 @@ const handleBin = () => {
 const handleDelete = async (record) => {
     console.log('Delete User:', record);
     try {
-        const res = await userListApi.deleteUser({ 'user_id': record.id });
+        const res = await userListApi.deleteUser({ 'user_id_1': record.id });
         message.success(t('user.delete_success'))
         fetchUserList()
     } catch (error) {

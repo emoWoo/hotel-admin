@@ -10,8 +10,8 @@ const statistics = ref({
     month_check_out: 0,
     check_list: [],
 })
-const todayCheckInCount = computed(() => statistics.value?.check_list?.[0]?.check_in || 0)
-const todayCheckOutCount = computed(() => statistics.value?.check_list?.[0]?.check_out || 0)
+const todayCheckInCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.type_stats.check_in || 0)
+const todayCheckOutCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.type_stats.check_out || 0)
 const monthlyCheckInCount = computed(() => statistics.value?.month_check_in)
 const monthlyCheckOutCount = computed(() => statistics.value?.month_check_out)
 
@@ -66,7 +66,8 @@ function getTodayAndLastTenDays() {
     const dates = []
     const today = new Date()
     dates.push(today.toISOString().split('T')[0])
-    for (let i = 1; i <= 10; i++) {
+    const len = statistics.value?.check_list?.length || 10
+    for (let i = 0; i < len; i++) {
         const date = new Date(today)
         date.setDate(today.getDate() - i)
         dates.push(date.toISOString().split('T')[0])
@@ -102,18 +103,25 @@ const monthlyChartOptions = ref({
 const monthlySeries = computed(() => [
     {
         name: t('dashboard.luggage_checkin_count'),
-        data: statistics.value?.check_list.map(item => item.check_in).reverse(),
+        data: statistics.value?.check_list.map(item => item.day_logs.type_stats.check_in).reverse(),
     },
     {
         name: t('dashboard.luggage_checkout_count'),
-        data: statistics.value?.check_list.map(item => item.check_out).reverse(),
+        data: statistics.value?.check_list.map(item => item.day_logs.type_stats.check_out).reverse(),
     },
 ])
 
 onMounted(async () => {
     try {
         const res = await luggageApi.getStatics()
-        statistics.value = res.data
+        const data = res.data.logs
+        console.log('Fetched luggage statistics:', data)
+        statistics.value = {
+            month_check_in: data.deposit_month || 0,
+            month_check_out: data.withdrawal_month || 0,
+            check_list: (data.check_list || []).slice(0, 10),
+        }
+        console.log('Updated statistics:', statistics.value.check_list)
     } catch (err) {
         console.error('Error fetching statistics:', err)
     }

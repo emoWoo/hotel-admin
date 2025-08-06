@@ -74,8 +74,6 @@ import { DashboardOutlined, HomeOutlined, InfoCircleOutlined, UserOutlined, TagO
 import langSelector from '../components/langSelector.vue';
 import themeSwitch from '../components/themeSwitch.vue';
 import { useI18n } from 'vue-i18n';
-import userApi from '../api/user';
-import { message } from 'ant-design-vue';
 
 const route = useRoute()
 const { t } = useI18n()
@@ -100,18 +98,6 @@ watch(
     { immediate: true }
 )
 
-onMounted(async()=>{
-    try {
-        const res = await userApi.getUserInfo()
-        const userInfo = res.data
-        formData.name = userInfo.name
-        formData.email = userInfo.email
-        formData.hotel_id = userInfo.hotel_id
-        console.log(res.data)
-    } catch (error) {
-        message.error(t('usrinfo.get_usrinfo_error'))
-    }
-})
 </script>
 
 <style scoped>
