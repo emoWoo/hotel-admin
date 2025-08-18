@@ -25,6 +25,10 @@ const routes = [
     component: Baselayout,
     children: [
       {
+        path: "",
+        redirect: "/dashboard",
+      },
+      {
         path: "dashboard",
         component: Dashboard,
         meta: {
