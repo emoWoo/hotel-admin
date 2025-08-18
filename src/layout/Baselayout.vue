@@ -58,7 +58,7 @@
                     </a-breadcrumb>
                     <div class="breadcrumbtitle">{{ currentTitle }}</div>
                 </div>
-                <a-watermark class="full-page" content="emoWoo hotel admin">
+                <a-watermark class="full-page" content="NearLink">
                     <div :style="{ margin: '16px 16px' }">
                         <router-view />
                     </div>
@@ -68,14 +68,15 @@
     </ALayout>
 </template>
 <script setup>
-import { ref, watch,onMounted } from 'vue';
-import { useRoute } from 'vue-router'
+import { ref, watch, onMounted } from 'vue';
+import { useRoute, useRouter } from 'vue-router'
 import { DashboardOutlined, HomeOutlined, InfoCircleOutlined, UserOutlined, TagOutlined, HddOutlined } from '@ant-design/icons-vue';
 import langSelector from '../components/langSelector.vue';
 import themeSwitch from '../components/themeSwitch.vue';
 import { useI18n } from 'vue-i18n';
 
 const route = useRoute()
+const router = useRouter();
 const { t } = useI18n()
 
 const currentTitle = ref('')
@@ -84,7 +85,8 @@ watch(
     () => route.fullPath,
     () => {
         const titleKey = route.meta.title || ''
-        currentTitle.value = titleKey ? t(titleKey) : ''
+        currentTitle.value = titleKey ? t(titleKey) : '';
+        localStorage.setItem('lastPath', route.fullPath);
     },
     { immediate: true }
 )
@@ -98,6 +100,14 @@ watch(
     { immediate: true }
 )
 
+onMounted(() => {
+    const lastPath = localStorage.getItem('lastPath');
+    if (lastPath && lastPath !== route.fullPath) {
+        router.replace(lastPath); 
+    } else if (!lastPath && route.path !== '/dashboard') {
+        router.replace('/dashboard');
+    }
+});
 </script>
 
 <style scoped>
@@ -127,5 +137,4 @@ watch(
 .site-layout .site-layout-background {
     background: #fff;
 }
-
 </style>

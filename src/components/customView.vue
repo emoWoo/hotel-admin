@@ -42,12 +42,14 @@ const emit = defineEmits(['close'])
         <a-descriptions bordered :column=props.column_num :layout="props.layout">
             <a-descriptions-item v-if="props.datatype === 'image'" v-for="info in props.infos" :label="info.label">
                 <div v-for="(img, idx) in info.value" :key="idx">
-                    <img :src="img"style="max-width: 200px; margin-bottom: 8px;"/>
+                    <img :src="img" style="max-width: 200px; margin-bottom: 8px;" />
                 </div>
             </a-descriptions-item>
-            <a-descriptions-item v-else v-for="info in props.infos" :label="info.label">
+            <a-descriptions-item v-else v-for="info in props.infos" :key="info.label" :label="info.label">
                 <template v-if="Array.isArray(info.value)">
-                    <div v-for="(item, idx) in info.value" :key="idx">{{ item }}</div>
+                    <div v-for="(item, idx) in info.value" :key="idx" style="margin-bottom: 6px;">
+                        {{ item }}
+                    </div>
                 </template>
                 <template v-else>
                     {{ info.value }}

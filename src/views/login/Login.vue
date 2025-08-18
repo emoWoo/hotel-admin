@@ -56,10 +56,10 @@ const login = async () => {
 </script>
 
 <template>
-    <a-watermark class="full-page" content="emoWoo hotel admin">
+    <a-watermark class="full-page" content="NearLink">
         <div class="login-container">
             <div class="login-card">
-                <div class="title">hotel-admin</div>
+                <div class="title">星闪行李寄存系统</div>
                 <a-form :model="form" @finish="login" layout="vertical" class="login-form">
                     <a-form-item :label="$t('login.email')" name="email" :rules="[{ required: true, message: $t('login.please_input_email') }]">
                         <a-input v-model:value="form.email" :placeholder="$t('login.email')">

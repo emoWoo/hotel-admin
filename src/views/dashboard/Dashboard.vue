@@ -10,8 +10,8 @@ const statistics = ref({
     month_check_out: 0,
     check_list: [],
 })
-const todayCheckInCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.type_stats.check_in || 0)
-const todayCheckOutCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.type_stats.check_out || 0)
+const todayCheckInCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.deposit || 0)
+const todayCheckOutCount = computed(() => statistics.value?.check_list?.[0]?.day_logs.withdrawal || 0)
 const monthlyCheckInCount = computed(() => statistics.value?.month_check_in)
 const monthlyCheckOutCount = computed(() => statistics.value?.month_check_out)
 
@@ -103,11 +103,11 @@ const monthlyChartOptions = ref({
 const monthlySeries = computed(() => [
     {
         name: t('dashboard.luggage_checkin_count'),
-        data: statistics.value?.check_list.map(item => item.day_logs.type_stats.check_in).reverse(),
+        data: statistics.value?.check_list.map(item => item.day_logs.deposit).reverse(),
     },
     {
         name: t('dashboard.luggage_checkout_count'),
-        data: statistics.value?.check_list.map(item => item.day_logs.type_stats.check_out).reverse(),
+        data: statistics.value?.check_list.map(item => item.day_logs.withdrawal).reverse(),
     },
 ])
 

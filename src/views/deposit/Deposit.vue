@@ -12,23 +12,15 @@ const showBin = ref(false);
 
 const search = [
     {
-        label: 'User Name',
+        label: '用户名',
         type: 'input',
     },
     {
-        label: 'Phone Number',
+        label: '电话号码',
         type: 'input',
     },
     {
-        label: 'Room Number',
-        type: 'input',
-    },
-    {
-        label: 'Ref Number',
-        type: 'input',
-    },
-    {
-        label: 'Code',
+        label: '房间号',
         type: 'input',
     },
 ]
@@ -176,7 +168,7 @@ async function fetchDepositinfos() {
             register_time: formatTimestamp(item.time),
             luggage_count: item.counts,
             type: item.list_type,
-            status: item.status === 1 ? '已取出' : '存放中',
+            status: item.list_status === 1 ? '未出库' : '已出库',
             last_updated_time: item.update_time === 0 ? '/' : formatTimestamp(item.update_time),
             stored_time: formatSecondsToHMS(item.stored_time),
             luggage: item.luggage || [],
@@ -204,7 +196,8 @@ onMounted(async () => {
         <CustomTabel :columns="columns" :dataSource=listData :actions="actions" @detail="checkDetail"
             @photo="checkPhoto" @luggage="checkLuggage" />
         <CustomView :visible="isDetail" @close="isDetail = false" :infos="detailData" />
-        <CustomView :visible="isphotos" @close="isphotos = false" :title="'图片'" :datatype="'image'":layout="'vertical'" :column_num="1" :infos="images_urls"/>
+        <CustomView :visible="isphotos" @close="isphotos = false" :title="'图片'" :datatype="'image'" :layout="'vertical'"
+            :column_num="1" :infos="images_urls" />
         <CustomView :visible="isluggage" @close="isluggage = false" :title="'行李'" :column_num="2" :layout="'vertical'"
             :infos="luggageData" />
     </a-card>
